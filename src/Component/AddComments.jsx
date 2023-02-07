@@ -1,8 +1,7 @@
 import { useState } from "react";
-import { Alert, Button, Form } from "react-bootstrap";
+import { Button, Form } from "react-bootstrap";
 
 const AddComments = ({ bookAsin }) => {
-  const [submit, setSubmit] = useState(false);
   const [commentsObject, setCommentsObject] = useState({
     comment: [],
     rate: "",
@@ -24,8 +23,8 @@ const AddComments = ({ bookAsin }) => {
       );
       console.log("post res", response);
       if (response.ok) {
+        alert("Submitted successfully");
         // updatePost();
-        setSubmit(true);
         setCommentsObject({ comment: [], rate: "" });
       } else {
         alert("problem accepting your comment :(");
@@ -38,13 +37,8 @@ const AddComments = ({ bookAsin }) => {
 
   return (
     <>
-      {submit && <Alert variant="success">Comment added</Alert>}
       <Form
-        onClick={(e) => {
-          e.stopPropagation();
-        }}
         onSubmit={(e) => {
-          // console.log('form is submitting...', e)
           e.preventDefault();
 
           sendComment();
@@ -63,12 +57,6 @@ const AddComments = ({ bookAsin }) => {
                 ...commentsObject,
                 comment: event.target.value,
               });
-              // this.setState({
-              //   commentsObject: {
-              //     ...this.state.commentsObject,
-              //     comment: event.target.value,
-              //   },
-              // });
             }}
           />
         </Form.Group>
@@ -85,12 +73,6 @@ const AddComments = ({ bookAsin }) => {
                 ...commentsObject,
                 rate: event.target.value,
               });
-              // this.setState({
-              //   commentsObject: {
-              //     ...this.state.commentsObject,
-              //     rate: event.target.value,
-              //   },
-              // });
             }}
           />
         </Form.Group>

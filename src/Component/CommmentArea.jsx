@@ -1,13 +1,12 @@
-import { Alert, Button, Card, ListGroup, Spinner } from "react-bootstrap";
+import { Alert, Spinner } from "react-bootstrap";
 import AddComments from "./AddComments";
-import { MdDelete } from "react-icons/md";
 import { useState, useEffect } from "react";
+import CommentList from "./CommentList";
 
 const CommentArea = ({ bookAsin }) => {
   const [comment, setComment] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
-  const [deleteCommentText, setDelete] = useState(false);
 
   const getComments = async () => {
     try {
@@ -38,30 +37,6 @@ const CommentArea = ({ bookAsin }) => {
     }
   };
 
-  const deleteComment = async (commentId) => {
-    try {
-      let response = await fetch(
-        `https://striveschool-api.herokuapp.com/api/comments/${commentId}`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization:
-              "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2M2M5M2FjZGU3MzczODAwMTUzNzQzOGIiLCJpYXQiOjE2NzU3NzY5MjAsImV4cCI6MTY3Njk4NjUyMH0.iZkEz1pTQD0UwdN8qkuX43GlGjgs5ctxQ9BiOCPjau4",
-          },
-        }
-      );
-      if (response.ok) {
-        setIsLoading(false);
-        setDelete(true);
-        updateCommentPost();
-      } else {
-        setIsLoading(false);
-        setIsError(true);
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
   useEffect(() => {
     getComments();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -88,36 +63,14 @@ const CommentArea = ({ bookAsin }) => {
       ) : (
         <>
           {bookAsin !== "" && <AddComments bookAsin={bookAsin}></AddComments>}
-          {deleteCommentText && <Alert variant="danger">Delete comment</Alert>}
           {bookAsin !== "" && (
             <>
               {comment.length > 0 && comment ? (
                 <>
-                  {comment.map((singleComment) => (
-                    <Card key={singleComment._id}>
-                      <Card.Header>Author: {singleComment.author}</Card.Header>
-                      <ListGroup variant="flush">
-                        <ListGroup.Item>
-                          Comment: {singleComment.comment}
-                        </ListGroup.Item>
-                        <ListGroup.Item>
-                          Rating: {singleComment.rate}
-                        </ListGroup.Item>
-                        <ListGroup.Item>
-                          <ListGroup.Item>
-                            <Button
-                              variant="danger"
-                              onClick={() => {
-                                deleteComment(singleComment._id);
-                              }}
-                            >
-                              <MdDelete />
-                            </Button>
-                          </ListGroup.Item>
-                        </ListGroup.Item>
-                      </ListGroup>
-                    </Card>
-                  ))}
+                  <CommentList
+                    commentsListToShow={comment}
+                    updateDelete={updateCommentPost}
+                  />
                 </>
               ) : (
                 "No comments available"
