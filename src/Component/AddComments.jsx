@@ -1,15 +1,7 @@
 import { useState } from "react";
 import { Alert, Button, Form } from "react-bootstrap";
 
-const AddComments = ({ updatePost, bookAsin }) => {
-  // state = {
-  //   submit: false,
-  //   commentsObject: {
-  //     comment: [],
-  //     rate: "",
-  //     elementId: this.props.bookAsin,
-  //   },
-  // };
+const AddComments = ({ bookAsin }) => {
   const [submit, setSubmit] = useState(false);
   const [commentsObject, setCommentsObject] = useState({
     comment: [],
@@ -32,16 +24,9 @@ const AddComments = ({ updatePost, bookAsin }) => {
       );
       console.log("post res", response);
       if (response.ok) {
-        updatePost();
+        // updatePost();
         setSubmit(true);
         setCommentsObject({ comment: [], rate: "" });
-        // this.setState({ submit: true });
-        // this.setState({
-        //   commentsObject: {
-        //     comment: [],
-        //     rate: "",
-        //   },
-        // });
       } else {
         alert("problem accepting your comment :(");
         console.log("elementID", commentsObject.elementId);

@@ -28,7 +28,10 @@ const App = () => {
         <Row>
           <Col xs={12} sm={12} md={6} lg={8}>
             <div>
-              <BookList selectedBook={selectedBook} />
+              <BookList
+                selectedBook={selectedBook}
+                selectedItemBook={bookAsin}
+              />
             </div>
           </Col>
           <Col xs={12} sm={12} md={6} lg={4}>

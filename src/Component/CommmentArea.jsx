@@ -87,6 +87,7 @@ const CommentArea = ({ bookAsin }) => {
         "Please select a book to view the comments.."
       ) : (
         <>
+          {bookAsin !== "" && <AddComments bookAsin={bookAsin}></AddComments>}
           {deleteCommentText && <Alert variant="danger">Delete comment</Alert>}
           {bookAsin !== "" && (
             <>
@@ -124,13 +125,6 @@ const CommentArea = ({ bookAsin }) => {
             </>
           )}
         </>
-      )}
-
-      {bookAsin !== "" && (
-        <AddComments
-          bookAsin={bookAsin}
-          updatePost={updateCommentPost}
-        ></AddComments>
       )}
     </div>
   );
