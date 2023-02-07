@@ -1,19 +1,18 @@
-import { Component } from "react";
 import { Alert, Button, Card, ListGroup, Spinner } from "react-bootstrap";
 import AddComments from "./AddComments";
 import { MdDelete } from "react-icons/md";
+import { useState, useEffect } from "react";
 
-class CommentArea extends Component {
-  state = {
-    comment: [],
-    isLoading: true, // now I want to bind the UI with it, the Spinner!
-    isError: false,
-  };
+const CommentArea = ({ bookAsin }) => {
+  const [comment, setComment] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isError, setIsError] = useState(false);
+  const [deleteCommentText, setDelete] = useState(false);
 
-  getComments = async () => {
+  const getComments = async () => {
     try {
       let response = await fetch(
-        `https://striveschool-api.herokuapp.com/api/comments/${this.props.bookAsin}`,
+        `https://striveschool-api.herokuapp.com/api/comments/${bookAsin}`,
         {
           headers: {
             Authorization:
@@ -26,23 +25,20 @@ class CommentArea extends Component {
         let data = await response.json();
         console.log("data", [data]);
         console.log("data2", data);
-        this.setState({ comment: data, isLoading: false });
+        setComment(data);
+        setIsLoading(false);
       } else {
-        this.setState({
-          isLoading: false,
-          isError: true,
-        });
+        setIsLoading(false);
+        setIsError(true);
       }
     } catch (e) {
       console.error(e);
-      this.setState({
-        isLoading: false,
-        isError: true,
-      });
+      setIsLoading(false);
+      setIsError(true);
     }
   };
 
-  deleteComment = async (commentId) => {
+  const deleteComment = async (commentId) => {
     try {
       let response = await fetch(
         `https://striveschool-api.herokuapp.com/api/comments/${commentId}`,
@@ -55,96 +51,89 @@ class CommentArea extends Component {
         }
       );
       if (response.ok) {
-        this.setState({ isLoading: false });
-        this.updateCommentPost();
+        setIsLoading(false);
+        setDelete(true);
+        updateCommentPost();
       } else {
-        this.setState({
-          isLoading: false,
-          isError: true,
-        });
+        setIsLoading(false);
+        setIsError(true);
       }
     } catch (error) {
       console.log(error);
     }
   };
-  updateCommentPost = () => {
-    this.getComments();
+  useEffect(() => {
+    getComments();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    getComments();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [bookAsin]);
+
+  const updateCommentPost = () => {
+    getComments();
   };
-  componentDidMount() {
-    this.getComments();
-  }
 
-  componentDidUpdate(prevProps, prevState) {
-    console.log("PREVIOUS PROPS", prevProps);
-    console.log("CURRENT PROPS", this.props);
-    if (prevProps.bookAsin !== this.props.bookAsin) {
-      this.getComments();
-    }
-  }
+  return (
+    <div>
+      <h4>Comments</h4>
+      {isLoading && ( // isLoading is true or false
+        <Spinner animation="border" variant="success" />
+      )}
+      {isError && <Alert variant="danger">Aww snap, we got an error!😨</Alert>}
+      {bookAsin === "" ? (
+        "Please select a book to view the comments.."
+      ) : (
+        <>
+          {deleteCommentText && <Alert variant="danger">Delete comment</Alert>}
+          {bookAsin !== "" && (
+            <>
+              {comment.length > 0 && comment ? (
+                <>
+                  {comment.map((singleComment) => (
+                    <Card key={singleComment._id}>
+                      <Card.Header>Author: {singleComment.author}</Card.Header>
+                      <ListGroup variant="flush">
+                        <ListGroup.Item>
+                          Comment: {singleComment.comment}
+                        </ListGroup.Item>
+                        <ListGroup.Item>
+                          Rating: {singleComment.rate}
+                        </ListGroup.Item>
+                        <ListGroup.Item>
+                          <ListGroup.Item>
+                            <Button
+                              variant="danger"
+                              onClick={() => {
+                                deleteComment(singleComment._id);
+                              }}
+                            >
+                              <MdDelete />
+                            </Button>
+                          </ListGroup.Item>
+                        </ListGroup.Item>
+                      </ListGroup>
+                    </Card>
+                  ))}
+                </>
+              ) : (
+                "No comments available"
+              )}
+            </>
+          )}
+        </>
+      )}
 
-  render() {
-    return (
-      <div>
-        <h4>Comments</h4>
-        {this.state.isLoading && ( // isLoading is true or false
-          <Spinner animation="border" variant="success" />
-        )}
-        {this.state.isError && (
-          <Alert variant="danger">Aww snap, we got an error!😨</Alert>
-        )}
-        {this.props.bookAsin === "" ? (
-          "Please select a book to view the comments.."
-        ) : (
-          <>
-            {this.props.bookAsin !== "" && (
-              <>
-                {this.state.comment.length > 0 && this.state.comment ? (
-                  <>
-                    {this.state.comment.map((singleComment) => (
-                      <Card key={singleComment._id}>
-                        <Card.Header>
-                          Author: {singleComment.author}
-                        </Card.Header>
-                        <ListGroup variant="flush">
-                          <ListGroup.Item>
-                            Comment: {singleComment.comment}
-                          </ListGroup.Item>
-                          <ListGroup.Item>
-                            Rating: {singleComment.rate}
-                          </ListGroup.Item>
-                          <ListGroup.Item>
-                            <ListGroup.Item>
-                              <Button
-                                variant="danger"
-                                onClick={() => {
-                                  this.deleteComment(singleComment._id);
-                                }}
-                              >
-                                <MdDelete />
-                              </Button>
-                            </ListGroup.Item>
-                          </ListGroup.Item>
-                        </ListGroup>
-                      </Card>
-                    ))}
-                  </>
-                ) : (
-                  "No comments available"
-                )}
-              </>
-            )}
-          </>
-        )}
-
-        {this.props.bookAsin !== "" && (
-          <AddComments
-            bookAsin={this.props.bookAsin}
-            updatePost={this.updateCommentPost}
-          ></AddComments>
-        )}
-      </div>
-    );
-  }
-}
+      {bookAsin !== "" && (
+        <AddComments
+          bookAsin={bookAsin}
+          updatePost={updateCommentPost}
+        ></AddComments>
+      )}
+    </div>
+  );
+};
 
 export default CommentArea;
